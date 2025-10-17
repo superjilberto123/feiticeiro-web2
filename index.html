@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>⚔️ Final Fantasy Battle Arena ⚔️</title>
+    <title>⚡ Final Fantasy Magic Duel ⚡</title>
     <style>
         * {
             margin: 0;
@@ -13,418 +13,983 @@
 
         body {
             font-family: 'Courier New', monospace;
-            background: linear-gradient(to bottom, #1e3a8a, #581c87, #000000);
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
             min-height: 100vh;
             color: white;
             padding: 20px;
+            overflow-x: hidden;
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
         }
 
         h1 {
             text-align: center;
-            font-size: 2.5rem;
-            color: #fbbf24;
-            margin-bottom: 30px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-            letter-spacing: 2px;
+            font-size: 3rem;
+            background: linear-gradient(to right, #fbbf24, #a78bfa, #60a5fa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+            text-shadow: 0 0 30px rgba(251, 191, 36, 0.5);
+            letter-spacing: 3px;
+            animation: glow 2s ease-in-out infinite;
         }
 
-        /* Campo de Batalha */
+        @keyframes glow {
+            0%, 100% { filter: brightness(1); }
+            50% { filter: brightness(1.3); }
+        }
+
+        /* Battlefield */
         .battlefield {
-            background: linear-gradient(to bottom, #1e40af, #7e22ce);
-            border: 4px solid #3b82f6;
-            border-radius: 10px;
+            position: relative;
+            background: linear-gradient(to bottom, #1e1b4b, #312e81, #1e1b4b);
+            border: 3px solid #8b5cf6;
+            border-radius: 15px;
             padding: 40px;
             margin-bottom: 30px;
-            min-height: 300px;
-            position: relative;
+            min-height: 400px;
+            box-shadow: 0 0 40px rgba(139, 92, 246, 0.4);
             overflow: hidden;
         }
 
-        .stars {
+        .magic-particles {
             position: absolute;
             width: 100%;
-            height: 60%;
+            height: 100%;
             top: 0;
             left: 0;
+            pointer-events: none;
         }
 
-        .star {
+        .particle {
             position: absolute;
-            width: 2px;
-            height: 2px;
+            width: 4px;
+            height: 4px;
             background: white;
             border-radius: 50%;
+            animation: float 3s infinite;
         }
 
-        .combatants {
+        @keyframes float {
+            0%, 100% { transform: translateY(0) scale(1); opacity: 0.3; }
+            50% { transform: translateY(-20px) scale(1.5); opacity: 0.8; }
+        }
+
+        .mages {
             display: flex;
             justify-content: space-between;
             align-items: center;
             position: relative;
             z-index: 10;
+            margin-top: 50px;
         }
 
-        .character {
+        .mage {
             text-align: center;
-            transition: all 0.3s ease;
+            transition: all 0.5s ease;
+            position: relative;
         }
 
-        .character.attack {
-            transform: translateX(50px);
+        .mage.casting {
+            animation: casting 0.6s ease-in-out;
         }
 
-        .character.enemy-attack {
-            transform: translateX(-50px);
+        @keyframes casting {
+            0%, 100% { transform: scale(1); }
+            25% { transform: scale(1.1) rotate(-5deg); }
+            75% { transform: scale(1.1) rotate(5deg); }
         }
 
-        .character.hurt {
-            animation: shake 0.3s;
+        .mage.hit {
+            animation: damage 0.5s ease-out;
         }
 
-        .character.dead {
-            opacity: 0.3;
-        }
-
-        @keyframes shake {
+        @keyframes damage {
             0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-10px); }
-            75% { transform: translateX(10px); }
+            25% { transform: translateX(-15px) rotate(-5deg); }
+            75% { transform: translateX(15px) rotate(5deg); }
         }
 
-        .sprite {
-            font-size: 6rem;
+        .mage-sprite {
+            font-size: 8rem;
+            filter: drop-shadow(0 0 20px currentColor);
+            margin-bottom: 15px;
+        }
+
+        .player-mage { color: #60a5fa; }
+        .enemy-mage { color: #f87171; }
+
+        .mage-name {
+            font-weight: bold;
+            font-size: 1.4rem;
             margin-bottom: 10px;
         }
 
-        .char-name {
-            font-weight: bold;
-            font-size: 1.2rem;
+        .mage-class {
+            font-size: 0.9rem;
+            color: #a78bfa;
         }
 
-        .warrior-name { color: #fbbf24; }
-        .demon-name { color: #f87171; }
-
-        .vs {
-            font-size: 4rem;
+        .vs-symbol {
+            font-size: 5rem;
             font-weight: bold;
-            color: #ef4444;
+            background: linear-gradient(to bottom, #fbbf24, #ef4444);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
             animation: pulse 2s infinite;
         }
 
         @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.7; }
         }
 
-        /* Status */
-        .status-container {
+        /* Magic Effect Overlay */
+        .magic-effect {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 6rem;
+            animation: magicBlast 1s ease-out forwards;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        @keyframes magicBlast {
+            0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+            50% { transform: translate(-50%, -50%) scale(1.5); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+        }
+
+        /* Status Panels */
+        .status-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 30px;
             margin-bottom: 30px;
         }
 
-        .status-box {
-            padding: 20px;
-            border-radius: 10px;
+        .status-panel {
+            background: linear-gradient(135deg, #1e293b, #334155);
             border: 2px solid;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
         }
 
-        .player-status {
-            background: #1e3a8a;
-            border-color: #fbbf24;
+        .player-panel {
+            border-color: #60a5fa;
+            box-shadow: 0 0 20px rgba(96, 165, 250, 0.3);
         }
 
-        .enemy-status {
-            background: #581c87;
-            border-color: #ef4444;
+        .enemy-panel {
+            border-color: #f87171;
+            box-shadow: 0 0 20px rgba(248, 113, 113, 0.3);
         }
 
-        .status-title {
-            font-size: 1.3rem;
+        .panel-header {
+            font-size: 1.5rem;
             font-weight: bold;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
+            text-align: center;
         }
 
-        .stat-row {
-            margin-bottom: 10px;
+        .stat-item {
+            margin-bottom: 15px;
         }
 
         .stat-label {
             display: flex;
             justify-content: space-between;
-            font-size: 0.9rem;
-            margin-bottom: 5px;
+            font-size: 0.95rem;
+            margin-bottom: 6px;
         }
 
-        .progress-bar {
+        .bar-container {
             width: 100%;
-            height: 24px;
+            height: 26px;
             background: #1f2937;
             border: 2px solid #4b5563;
             border-radius: 8px;
             overflow: hidden;
+            position: relative;
         }
 
-        .progress-fill {
+        .bar-fill {
             height: 100%;
-            transition: width 0.5s ease;
+            transition: width 0.6s ease;
+            position: relative;
+            overflow: hidden;
         }
 
-        .hp-bar { background: #dc2626; }
-        .mp-bar { background: #2563eb; }
-        .enemy-hp-bar { background: #9333ea; }
+        .bar-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
 
-        /* Mensagens */
-        .messages {
-            background: #172554;
-            border: 2px solid #3b82f6;
-            border-radius: 10px;
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .hp-fill { background: linear-gradient(to right, #dc2626, #ef4444); }
+        .mp-fill { background: linear-gradient(to right, #2563eb, #3b82f6); }
+        .enemy-hp-fill { background: linear-gradient(to right, #7c3aed, #a855f7); }
+
+        .buff-section {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #4b5563;
+        }
+
+        .buff-title {
+            font-size: 0.85rem;
+            color: #a78bfa;
+            margin-bottom: 8px;
+        }
+
+        .buffs {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .buff-icon {
+            padding: 5px 10px;
+            background: #1e293b;
+            border: 1px solid #8b5cf6;
+            border-radius: 6px;
+            font-size: 0.8rem;
+        }
+
+        /* Message Log */
+        .message-log {
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            border: 2px solid #475569;
+            border-radius: 12px;
             padding: 20px;
-            min-height: 120px;
             margin-bottom: 30px;
-            max-height: 150px;
+            min-height: 140px;
+            max-height: 180px;
             overflow-y: auto;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.3);
         }
 
         .message {
-            font-size: 0.9rem;
-            margin-bottom: 5px;
+            font-size: 0.95rem;
+            margin-bottom: 8px;
+            padding: 5px;
+            animation: messageSlide 0.3s ease-out;
         }
 
-        /* Menu de Ações */
-        .action-menu {
-            background: #1e3a8a;
-            border: 2px solid #3b82f6;
-            border-radius: 10px;
+        @keyframes messageSlide {
+            from { transform: translateX(-20px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .damage-msg { color: #fca5a5; }
+        .heal-msg { color: #86efac; }
+        .buff-msg { color: #c4b5fd; }
+        .info-msg { color: #bfdbfe; }
+
+        /* Spell Selection */
+        .spell-menu {
+            background: linear-gradient(135deg, #1e293b, #334155);
+            border: 2px solid #8b5cf6;
+            border-radius: 12px;
             padding: 30px;
+            box-shadow: 0 5px 30px rgba(139, 92, 246, 0.3);
         }
 
-        .main-actions {
+        .menu-title {
+            text-align: center;
+            font-size: 1.8rem;
+            color: #a78bfa;
+            margin-bottom: 25px;
+        }
+
+        .spell-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 15px;
+            margin-bottom: 20px;
         }
 
-        .submenu {
-            margin-top: 20px;
-        }
-
-        .submenu-actions {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 10px;
-        }
-
-        button {
-            padding: 15px;
-            font-size: 1.1rem;
-            font-weight: bold;
-            border: none;
-            border-radius: 8px;
+        .spell-card {
+            background: linear-gradient(135deg, #1e293b, #2d3748);
+            border: 2px solid;
+            border-radius: 10px;
+            padding: 20px;
             cursor: pointer;
-            transition: all 0.2s;
-            font-family: 'Courier New', monospace;
-            color: white;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
 
-        button:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        .spell-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: left 0.5s;
         }
 
-        button:disabled {
-            opacity: 0.5;
+        .spell-card:hover::before {
+            left: 100%;
+        }
+
+        .spell-card:hover:not(.disabled) {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+        }
+
+        .spell-card.fire { border-color: #ef4444; }
+        .spell-card.ice { border-color: #60a5fa; }
+        .spell-card.thunder { border-color: #fbbf24; }
+        .spell-card.holy { border-color: #f9fafb; }
+        .spell-card.dark { border-color: #8b5cf6; }
+        .spell-card.support { border-color: #34d399; }
+
+        .spell-card.disabled {
+            opacity: 0.4;
             cursor: not-allowed;
         }
 
-        .btn-attack { background: #dc2626; }
-        .btn-attack:hover:not(:disabled) { background: #b91c1c; }
-
-        .btn-magic { background: #7c3aed; }
-        .btn-magic:hover:not(:disabled) { background: #6d28d9; }
-
-        .btn-item { background: #059669; }
-        .btn-item:hover:not(:disabled) { background: #047857; }
-
-        .btn-defend { background: #2563eb; }
-        .btn-defend:hover:not(:disabled) { background: #1d4ed8; }
-
-        .btn-back { background: #4b5563; }
-        .btn-back:hover { background: #374151; }
-
-        .btn-restart {
-            background: #d97706;
-            padding: 20px 40px;
-            font-size: 1.3rem;
+        .spell-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
         }
-        .btn-restart:hover { background: #b45309; }
+
+        .spell-name {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .spell-cost {
+            background: #1e293b;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            color: #60a5fa;
+        }
+
+        .spell-desc {
+            font-size: 0.85rem;
+            color: #cbd5e1;
+            margin-bottom: 8px;
+        }
+
+        .spell-power {
+            font-size: 0.8rem;
+            color: #fbbf24;
+        }
+
+        .back-btn {
+            width: 100%;
+            padding: 15px;
+            background: #475569;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Courier New', monospace;
+        }
+
+        .back-btn:hover {
+            background: #334155;
+            transform: translateY(-2px);
+        }
 
         /* Game Over */
-        .game-over {
+        .game-over-screen {
             text-align: center;
-            padding: 40px;
+            padding: 60px 40px;
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            border: 3px solid;
+            border-radius: 15px;
+            animation: fadeIn 1s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .victory-screen {
+            border-color: #fbbf24;
+            box-shadow: 0 0 50px rgba(251, 191, 36, 0.5);
+        }
+
+        .defeat-screen {
+            border-color: #ef4444;
+            box-shadow: 0 0 50px rgba(239, 68, 68, 0.5);
         }
 
         .game-over-title {
-            font-size: 4rem;
+            font-size: 5rem;
             font-weight: bold;
             margin-bottom: 30px;
+            animation: titleBounce 1s ease-out;
         }
 
-        .victory { color: #fbbf24; }
-        .defeat { color: #ef4444; }
+        @keyframes titleBounce {
+            0% { transform: scale(0); }
+            60% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
 
-        /* Responsivo */
+        .victory-title {
+            background: linear-gradient(to right, #fbbf24, #f59e0b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .defeat-title {
+            color: #ef4444;
+        }
+
+        .game-over-stats {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            line-height: 1.8;
+        }
+
+        .restart-btn {
+            padding: 20px 50px;
+            background: linear-gradient(to right, #8b5cf6, #a78bfa);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 1.4rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Courier New', monospace;
+            box-shadow: 0 5px 20px rgba(139, 92, 246, 0.4);
+        }
+
+        .restart-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(139, 92, 246, 0.6);
+        }
+
         @media (max-width: 768px) {
-            h1 { font-size: 1.8rem; }
-            .sprite { font-size: 4rem; }
-            .vs { font-size: 3rem; }
-            .status-container { grid-template-columns: 1fr; }
-            .main-actions { grid-template-columns: 1fr; }
+            h1 { font-size: 2rem; }
+            .mage-sprite { font-size: 5rem; }
+            .vs-symbol { font-size: 3rem; }
+            .status-grid { grid-template-columns: 1fr; }
+            .spell-grid { grid-template-columns: 1fr; }
+            .game-over-title { font-size: 3rem; }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>⚔️ FINAL FANTASY BATTLE ARENA ⚔️</h1>
+        <h1>⚡ FINAL FANTASY MAGIC DUEL ⚡</h1>
 
-        <!-- Campo de Batalha -->
-        <div class="battlefield">
-            <div class="stars" id="stars"></div>
-            <div class="combatants">
-                <div class="character" id="warrior">
-                    <div class="sprite">🗡️</div>
-                    <div class="char-name warrior-name">GUERREIRO</div>
+        <!-- Battlefield -->
+        <div class="battlefield" id="battlefield">
+            <div class="magic-particles" id="particles"></div>
+            
+            <div class="mages">
+                <div class="mage player-mage" id="playerMage">
+                    <div class="mage-sprite">🧙‍♂️</div>
+                    <div class="mage-name">VOCÊ</div>
+                    <div class="mage-class">Arquimago</div>
                 </div>
-                <div class="vs">VS</div>
-                <div class="character" id="demon">
-                    <div class="sprite">👹</div>
-                    <div class="char-name demon-name">DEMÔNIO</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Status -->
-        <div class="status-container">
-            <div class="status-box player-status">
-                <div class="status-title">🗡️ GUERREIRO MÍSTICO</div>
-                <div class="stat-row">
-                    <div class="stat-label">
-                        <span style="color: #f87171;">HP</span>
-                        <span id="playerHP">150/150</span>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress-fill hp-bar" id="playerHPBar" style="width: 100%"></div>
-                    </div>
-                </div>
-                <div class="stat-row">
-                    <div class="stat-label">
-                        <span style="color: #60a5fa;">MP</span>
-                        <span id="playerMP">100/100</span>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress-fill mp-bar" id="playerMPBar" style="width: 100%"></div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="status-box enemy-status">
-                <div class="status-title">👹 DEMÔNIO DAS SOMBRAS</div>
-                <div class="stat-row">
-                    <div class="stat-label">
-                        <span style="color: #f87171;">HP</span>
-                        <span id="enemyHP">180/180</span>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress-fill enemy-hp-bar" id="enemyHPBar" style="width: 100%"></div>
+                
+                <div class="vs-symbol">⚡</div>
+                
+                <div class="mage enemy-mage" id="enemyMage">
+                    <div class="mage enemy-mage" id="enemyMage">
+                        <div class="mage-sprite">
+                            <img src="https://www.comboinfinito.com.br/principal/wp-content/uploads/2017/04/God-of-War.jpg" alt="Kratos" style="width: 180px; height: 180px; object-fit: cover; border-radius: 10px; border: 3px solid #f87171; box-shadow: 0 0 20px rgba(248, 113, 113, 0.6);">
+                        </div>
+                        <div class="mage-name">KRATOS</div>
+                        <div class="mage-class">Deus da Guerra</div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Mensagens -->
-        <div class="messages" id="messages">
-            <div class="message">⚔️ Uma nova batalha épica começou!</div>
-            <div class="message">👹 O Demônio das Sombras emerge das trevas!</div>
-            <div class="message">🗡️ Escolha sua ação sabiamente...</div>
+        <!-- Status Panels -->
+        <div class="status-grid">
+            <div class="status-panel player-panel">
+                <div class="panel-header">🧙‍♂️ ARQUIMAGO</div>
+                
+                <div class="stat-item">
+                    <div class="stat-label">
+                        <span style="color: #fca5a5;">❤️ HP</span>
+                        <span id="playerHP">200/200</span>
+                    </div>
+                    <div class="bar-container">
+                        <div class="bar-fill hp-fill" id="playerHPBar" style="width: 100%"></div>
+                    </div>
+                </div>
+                
+                <div class="stat-item">
+                    <div class="stat-label">
+                        <span style="color: #93c5fd;">✨ MP</span>
+                        <span id="playerMP">150/150</span>
+                    </div>
+                    <div class="bar-container">
+                        <div class="bar-fill mp-fill" id="playerMPBar" style="width: 100%"></div>
+                    </div>
+                </div>
+
+                <div class="buff-section">
+                    <div class="buff-title">🔮 EFEITOS ATIVOS</div>
+                    <div class="buffs" id="playerBuffs">
+                        <span style="color: #94a3b8; font-size: 0.85rem;">Nenhum</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="status-panel enemy-panel">
+                <div class="panel-header">⚔️ KRATOS</div>
+                
+                <div class="stat-item">
+                    <div class="stat-label">
+                        <span style="color: #fca5a5;">❤️ HP</span>
+                        <span id="enemyHP">250/250</span>
+                    </div>
+                    <div class="bar-container">
+                        <div class="bar-fill enemy-hp-fill" id="enemyHPBar" style="width: 100%"></div>
+                    </div>
+                </div>
+
+                <div class="buff-section">
+                    <div class="buff-title">🔮 EFEITOS ATIVOS</div>
+                    <div class="buffs" id="enemyBuffs">
+                        <span style="color: #94a3b8; font-size: 0.85rem;">Nenhum</span>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <!-- Menu de Ações -->
-        <div class="action-menu" id="actionMenu">
-            <div class="main-actions" id="mainActions">
-                <button class="btn-attack" onclick="openMenu('attack')">⚔️ ATACAR</button>
-                <button class="btn-magic" onclick="openMenu('magic')">🔮 MAGIA</button>
-                <button class="btn-item" onclick="openMenu('items')">💊 ITENS</button>
-                <button class="btn-defend" onclick="defend()">🛡️ DEFENDER</button>
-            </div>
+        <!-- Message Log -->
+        <div class="message-log" id="messageLog">
+            <div class="message info-msg">⚡ O duelo épico começou!</div>
+            <div class="message info-msg">⚔️ Kratos, o Deus da Guerra, ergue suas Lâminas do Caos!</div>
+            <div class="message info-msg">🔮 Escolha sua magia sabiamente!</div>
+        </div>
 
-            <div class="submenu" id="submenu" style="display: none;">
-                <button class="btn-back" onclick="closeMenu()">← Voltar</button>
-                <div class="submenu-actions" id="submenuActions"></div>
-            </div>
+        <!-- Spell Menu -->
+        <div class="spell-menu" id="spellMenu">
+            <div class="menu-title">📖 GRIMÓRIO DE MAGIAS</div>
+            <div class="spell-grid" id="spellGrid"></div>
         </div>
 
         <!-- Game Over -->
-        <div class="game-over" id="gameOver" style="display: none;">
-            <div class="game-over-title" id="gameOverTitle"></div>
-            <button class="btn-restart" onclick="restart()">🔄 NOVA BATALHA</button>
-        </div>
+        <div id="gameOverScreen" style="display: none;"></div>
     </div>
 
     <script>
-        // Estado do jogo
-        let gameState = {
-            playerHP: 150,
-            playerMP: 100,
-            enemyHP: 180,
-            enemyMP: 80,
-            maxPlayerHP: 150,
-            maxPlayerMP: 100,
-            maxEnemyHP: 180,
-            potionsHP: 3,
-            potionsMP: 2,
-            elixirs: 1,
+        // Game State
+        const gameState = {
+            playerHP: 200,
+            playerMP: 150,
+            maxPlayerHP: 200,
+            maxPlayerMP: 150,
+            enemyHP: 250,
+            maxEnemyHP: 250,
+            enemyMP: 120,
+            playerBuffs: {},
+            enemyBuffs: {},
             playerTurn: true,
             animating: false,
-            gameOver: false
+            gameOver: false,
+            turnCount: 1,
+            kratosRage: 0
         };
 
-        // Criar estrelas de fundo
-        function createStars() {
-            const starsContainer = document.getElementById('stars');
-            for (let i = 0; i < 30; i++) {
-                const star = document.createElement('div');
-                star.className = 'star';
-                star.style.left = Math.random() * 100 + '%';
-                star.style.top = Math.random() * 60 + '%';
-                star.style.opacity = Math.random() * 0.8 + 0.2;
-                starsContainer.appendChild(star);
+        // Spell Database
+        const spells = {
+            fire3: {
+                name: '🔥 Firaga',
+                cost: 25,
+                power: 45,
+                type: 'fire',
+                desc: 'Chamas infernais que causam grande dano',
+                effect: 'damage'
+            },
+            ice3: {
+                name: '❄️ Blizzaga',
+                cost: 28,
+                power: 42,
+                type: 'ice',
+                desc: 'Gelo absoluto que congela o inimigo',
+                effect: 'damage'
+            },
+            thunder3: {
+                name: '⚡ Thundaga',
+                cost: 30,
+                power: 50,
+                type: 'thunder',
+                desc: 'Relâmpago devastador do céu',
+                effect: 'damage'
+            },
+            holy: {
+                name: '✨ Holy',
+                cost: 35,
+                power: 60,
+                type: 'holy',
+                desc: 'Luz sagrada que purifica o mal',
+                effect: 'damage'
+            },
+            flare: {
+                name: '🌟 Flare',
+                cost: 45,
+                power: 75,
+                type: 'fire',
+                desc: 'Explosão de energia pura',
+                effect: 'damage'
+            },
+            meteor: {
+                name: '☄️ Meteor',
+                cost: 50,
+                power: 85,
+                type: 'dark',
+                desc: 'Meteoros do espaço devastam o campo',
+                effect: 'damage'
+            },
+            cure3: {
+                name: '💚 Curaga',
+                cost: 30,
+                power: 60,
+                type: 'support',
+                desc: 'Cura profunda que restaura HP',
+                effect: 'heal'
+            },
+            regen: {
+                name: '🌿 Regen',
+                cost: 20,
+                power: 15,
+                type: 'support',
+                desc: 'Regeneração contínua de HP (3 turnos)',
+                effect: 'buff',
+                duration: 3
+            },
+            shell: {
+                name: '🛡️ Shell',
+                cost: 18,
+                power: 30,
+                type: 'support',
+                desc: 'Proteção mágica que reduz dano (4 turnos)',
+                effect: 'buff',
+                duration: 4
+            },
+            haste: {
+                name: '⚡ Haste',
+                cost: 22,
+                power: 0,
+                type: 'support',
+                desc: 'Aumenta velocidade (regenera 15 MP por turno)',
+                effect: 'buff',
+                duration: 3
+            }
+        };
+
+        // Initialize
+        function init() {
+            createParticles();
+            renderSpells();
+            updateUI();
+        }
+
+        // Create magic particles
+        function createParticles() {
+            const container = document.getElementById('particles');
+            for (let i = 0; i < 25; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 3 + 's';
+                container.appendChild(particle);
             }
         }
 
-        // Adicionar mensagem
-        function addMessage(msg) {
-            const messagesDiv = document.getElementById('messages');
-            const messageEl = document.createElement('div');
-            messageEl.className = 'message';
-            messageEl.textContent = msg;
-            messagesDiv.appendChild(messageEl);
-            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        // Render spell cards
+        function renderSpells() {
+            const grid = document.getElementById('spellGrid');
+            grid.innerHTML = '';
 
-            // Manter apenas últimas 6 mensagens
-            while (messagesDiv.children.length > 6) {
-                messagesDiv.removeChild(messagesDiv.firstChild);
+            Object.keys(spells).forEach(key => {
+                const spell = spells[key];
+                const card = document.createElement('div');
+                card.className = `spell-card ${spell.type}`;
+                
+                const canCast = gameState.playerMP >= spell.cost && !gameState.animating && gameState.playerTurn;
+                if (!canCast) card.classList.add('disabled');
+
+                card.innerHTML = `
+                    <div class="spell-header">
+                        <div class="spell-name">${spell.name}</div>
+                        <div class="spell-cost">${spell.cost} MP</div>
+                    </div>
+                    <div class="spell-desc">${spell.desc}</div>
+                    <div class="spell-power">${spell.effect === 'damage' ? '⚔️ Poder: ' + spell.power : spell.effect === 'heal' ? '❤️ Cura: ' + spell.power : '🔮 Suporte'}</div>
+                `;
+
+                if (canCast) {
+                    card.onclick = () => castSpell(key);
+                }
+
+                grid.appendChild(card);
+            });
+        }
+
+        // Cast spell
+        function castSpell(spellKey) {
+            if (!gameState.playerTurn || gameState.animating) return;
+
+            const spell = spells[spellKey];
+            if (gameState.playerMP < spell.cost) return;
+
+            gameState.animating = true;
+            gameState.playerMP -= spell.cost;
+            
+            addMessage(`🔮 Você lança ${spell.name}!`, 'info-msg');
+            
+            const playerMage = document.getElementById('playerMage');
+            playerMage.classList.add('casting');
+
+            showMagicEffect(spell.name.split(' ')[0]);
+
+            setTimeout(() => {
+                playerMage.classList.remove('casting');
+
+                if (spell.effect === 'damage') {
+                    const variance = spell.power * 0.2;
+                    const damage = Math.floor(spell.power - variance + Math.random() * variance * 2);
+                    
+                    let finalDamage = damage;
+                    if (gameState.enemyBuffs.shell) {
+                        finalDamage = Math.floor(damage * 0.7);
+                        addMessage(`🛡️ Shell reduziu o dano!`, 'buff-msg');
+                    }
+
+                    gameState.enemyHP = Math.max(0, gameState.enemyHP - finalDamage);
+                    addMessage(`💥 Causou ${finalDamage} de dano!`, 'damage-msg');
+                    
+                    const enemyMage = document.getElementById('enemyMage');
+                    enemyMage.classList.add('hit');
+                    setTimeout(() => enemyMage.classList.remove('hit'), 500);
+
+                } else if (spell.effect === 'heal') {
+                    const heal = Math.floor(spell.power * 0.8 + Math.random() * spell.power * 0.4);
+                    const actualHeal = Math.min(heal, gameState.maxPlayerHP - gameState.playerHP);
+                    gameState.playerHP = Math.min(gameState.playerHP + heal, gameState.maxPlayerHP);
+                    addMessage(`💚 Recuperou ${actualHeal} HP!`, 'heal-msg');
+
+                } else if (spell.effect === 'buff') {
+                    gameState.playerBuffs[spellKey] = {
+                        name: spell.name,
+                        duration: spell.duration,
+                        power: spell.power
+                    };
+                    addMessage(`✨ ${spell.name} ativado!`, 'buff-msg');
+                }
+
+                updateUI();
+                setTimeout(checkTurnEnd, 1000);
+            }, 800);
+        }
+
+        // Show magic effect
+        function showMagicEffect(icon) {
+            const battlefield = document.getElementById('battlefield');
+            const effect = document.createElement('div');
+            effect.className = 'magic-effect';
+            effect.textContent = icon;
+            battlefield.appendChild(effect);
+            setTimeout(() => effect.remove(), 1000);
+        }
+
+        // Check turn end
+        function checkTurnEnd() {
+            processTurnBuffs('player');
+            
+            if (gameState.enemyHP <= 0) {
+                endGame(true);
+            } else {
+                gameState.animating = false;
+                gameState.playerTurn = false;
+                setTimeout(enemyTurn, 800);
             }
         }
 
-        // Atualizar interface
+        // Enemy turn
+        function enemyTurn() {
+            gameState.animating = true;
+            addMessage('⚔️ Kratos prepara seu ataque...', 'info-msg');
+
+            const enemyMage = document.getElementById('enemyMage');
+            enemyMage.classList.add('casting');
+
+            setTimeout(() => {
+                enemyMage.classList.remove('casting');
+
+                const action = Math.random();
+                
+                // Kratos ganha rage ao receber dano
+                if (gameState.enemyHP < gameState.maxEnemyHP * 0.7) {
+                    gameState.kratosRage = Math.min(gameState.kratosRage + 1, 3);
+                }
+
+                if (gameState.kratosRage >= 3) {
+                    // Modo Fúria Espartana
+                    const damage = 55 + Math.floor(Math.random() * 25);
+                    gameState.playerHP = Math.max(0, gameState.playerHP - damage);
+                    addMessage(`⚔️ FÚRIA ESPARTANA! Kratos ataca com as Lâminas do Caos!`, 'info-msg');
+                    addMessage(`🔥 ${damage} de dano devastador!`, 'damage-msg');
+                    gameState.kratosRage = 0;
+                    
+                    showMagicEffect('💥');
+                    
+                    const playerMage = document.getElementById('playerMage');
+                    playerMage.classList.add('hit');
+                    setTimeout(() => playerMage.classList.remove('hit'), 500);
+
+                } else if (action < 0.4) {
+                    // Golpe com Machado Leviatã
+                    const damage = 30 + Math.floor(Math.random() * 20);
+                    
+                    let finalDamage = damage;
+                    if (gameState.playerBuffs.shell) {
+                        finalDamage = Math.floor(damage * 0.7);
+                        addMessage(`🛡️ Seu Shell reduziu o dano!`, 'buff-msg');
+                    }
+
+                    gameState.playerHP = Math.max(0, gameState.playerHP - finalDamage);
+                    addMessage(`⚔️ Kratos golpeia com o Machado Leviatã!`, 'info-msg');
+                    addMessage(`❄️ ${finalDamage} de dano gélido!`, 'damage-msg');
+                    
+                    showMagicEffect('❄️');
+                    
+                    const playerMage = document.getElementById('playerMage');
+                    playerMage.classList.add('hit');
+                    setTimeout(() => playerMage.classList.remove('hit'), 500);
+
+                } else if (action < 0.7) {
+                    // Lâminas do Caos
+                    const damage = 35 + Math.floor(Math.random() * 15);
+                    
+                    let finalDamage = damage;
+                    if (gameState.playerBuffs.shell) {
+                        finalDamage = Math.floor(damage * 0.7);
+                        addMessage(`🛡️ Seu Shell reduziu o dano!`, 'buff-msg');
+                    }
+
+                    gameState.playerHP = Math.max(0, gameState.playerHP - finalDamage);
+                    addMessage(`⚔️ Kratos ataca com as Lâminas do Caos!`, 'info-msg');
+                    addMessage(`🔥 ${finalDamage} de dano flamejante!`, 'damage-msg');
+                    
+                    showMagicEffect('🔥');
+                    
+                    const playerMage = document.getElementById('playerMage');
+                    playerMage.classList.add('hit');
+                    setTimeout(() => playerMage.classList.remove('hit'), 500);
+
+                } else if (action < 0.85 && gameState.enemyHP < gameState.maxEnemyHP * 0.5) {
+                    // Regeneração Divina
+                    const heal = 35 + Math.floor(Math.random() * 20);
+                    const actualHeal = Math.min(heal, gameState.maxEnemyHP - gameState.enemyHP);
+                    gameState.enemyHP = Math.min(gameState.enemyHP + heal, gameState.maxEnemyHP);
+                    addMessage(`⚔️ Kratos invoca seu poder divino!`, 'info-msg');
+                    addMessage(`💚 Ele recuperou ${actualHeal} HP!`, 'heal-msg');
+                    showMagicEffect('✨');
+
+                } else {
+                    // Escudo de Defesa
+                    const damage = 25 + Math.floor(Math.random() * 15);
+                    gameState.playerHP = Math.max(0, gameState.playerHP - damage);
+                    addMessage(`⚔️ Kratos usa o Escudo Guardião e contra-ataca!`, 'info-msg');
+                    addMessage(`🛡️ ${damage} de dano!`, 'damage-msg');
+                    
+                    showMagicEffect('🛡️');
+                    
+                    const playerMage = document.getElementById('playerMage');
+                    playerMage.classList.add('hit');
+                    setTimeout(() => playerMage.classList.remove('hit'), 500);
+                }
+
+                updateUI();
+                setTimeout(endEnemyTurn, 1200);
+            }, 1000);
+        }
+
+        // End enemy turn
+        function endEnemyTurn() {
+            processTurnBuffs('enemy');
+            
+            if (gameState.playerHP <= 0) {
+                endGame(false);
+            } else {
+                gameState.turnCount++;
+                gameState.playerTurn = true;
+                gameState.animating = false;
+                updateUI();
+                addMessage(`--- Turno ${gameState.turnCount} ---`, 'info-msg');
+            }
+        }
+
+        // Process buffs at turn end
+        function processTurnBuffs(target) {
+            const buffs = target === 'player' ? gameState.playerBuffs : gameState.enemyBuffs;
+            
+            Object.keys(buffs).forEach(key => {
+                const buff = buffs[key];
+                
+                // Regen effect
+                if (key === 'regen' && target === 'player') {
+                    const heal = buff.power;
+                    const actualHeal = Math.min(heal, gameState.maxPlayerHP - gameState.playerHP);
+                    gameState.playerHP = Math.min(gameState.playerHP + heal, gameState.maxPlayerHP);
+                    if (actualHeal > 0) {
+                        addMessage(`🌿 Regen restaurou ${actualHeal} HP!`, 'heal-msg');
+                    }
+                }
+
+                // Haste effect
+                if (key === 'haste' && target === 'player') {
+                    gameState.playerMP = Math.min(gameState.playerMP + 15, gameState.maxPlayerMP);
+                    addMessage(`⚡ Haste regenerou 15 MP!`, 'buff-msg');
+                }
+
+                // Decrease duration
+                buff.duration--;
+                if (buff.duration <= 0) {
+                    addMessage(`⏱️ ${buff.name} expirou!`, 'info-msg');
+                    delete buffs[key];
+                }
+            });
+
+            updateUI();
+        }
+
+        // Update UI
         function updateUI() {
+            // HP/MP bars and text
             document.getElementById('playerHP').textContent = 
                 `${Math.max(0, gameState.playerHP)}/${gameState.maxPlayerHP}`;
             document.getElementById('playerMP').textContent = 
@@ -439,353 +1004,122 @@
             document.getElementById('enemyHPBar').style.width = 
                 `${(gameState.enemyHP / gameState.maxEnemyHP) * 100}%`;
 
-            // Desabilitar botões se não for turno do jogador
-            const buttons = document.querySelectorAll('.main-actions button');
-            buttons.forEach(btn => {
-                btn.disabled = !gameState.playerTurn || gameState.animating;
-            });
+            // Update buffs display
+            updateBuffsDisplay('player');
+            updateBuffsDisplay('enemy');
+
+            // Update spell availability
+            renderSpells();
         }
 
-        // Abrir submenu
-        function openMenu(type) {
-            if (!gameState.playerTurn || gameState.animating) return;
-
-            const submenu = document.getElementById('submenu');
-            const submenuActions = document.getElementById('submenuActions');
-            const mainActions = document.getElementById('mainActions');
-
-            submenuActions.innerHTML = '';
-            submenu.style.display = 'block';
-            mainActions.style.display = 'none';
-
-            if (type === 'attack') {
-                const attacks = [
-                    { name: '🗡️ Corte Rápido', id: 1 },
-                    { name: '⚡ Golpe Trovão', id: 2 },
-                    { name: '🌪️ Tornado Cortante', id: 3 },
-                    { name: '💥 Impacto Sísmico', id: 4 }
-                ];
-                attacks.forEach(atk => {
-                    const btn = document.createElement('button');
-                    btn.className = 'btn-attack';
-                    btn.textContent = atk.name;
-                    btn.onclick = () => executePhysicalAttack(atk.id);
-                    submenuActions.appendChild(btn);
-                });
-            } else if (type === 'magic') {
-                const spells = [
-                    { name: '🔥 Fire III (15 MP)', id: 1, cost: 15 },
-                    { name: '❄️ Blizzard III (18 MP)', id: 2, cost: 18 },
-                    { name: '⚡ Thunder III (20 MP)', id: 3, cost: 20 },
-                    { name: '🌟 Holy (25 MP)', id: 4, cost: 25 },
-                    { name: '🌪️ Meteor (35 MP)', id: 5, cost: 35 }
-                ];
-                spells.forEach(spell => {
-                    const btn = document.createElement('button');
-                    btn.className = 'btn-magic';
-                    btn.textContent = spell.name;
-                    btn.disabled = gameState.playerMP < spell.cost;
-                    btn.onclick = () => executeMagic(spell.id);
-                    submenuActions.appendChild(btn);
-                });
-            } else if (type === 'items') {
-                const items = [
-                    { name: `❤️ Poção Vida x${gameState.potionsHP}`, action: useHPPotion, count: gameState.potionsHP },
-                    { name: `💙 Éter x${gameState.potionsMP}`, action: useMPPotion, count: gameState.potionsMP },
-                    { name: `✨ Elixir x${gameState.elixirs}`, action: useElixir, count: gameState.elixirs }
-                ];
-                items.forEach(item => {
-                    const btn = document.createElement('button');
-                    btn.className = 'btn-item';
-                    btn.textContent = item.name;
-                    btn.disabled = item.count <= 0;
-                    btn.onclick = item.action;
-                    submenuActions.appendChild(btn);
-                });
-            }
-        }
-
-        // Fechar submenu
-        function closeMenu() {
-            document.getElementById('submenu').style.display = 'none';
-            document.getElementById('mainActions').style.display = 'grid';
-        }
-
-        // Ataque físico
-        function executePhysicalAttack(type) {
-            if (!gameState.playerTurn || gameState.animating) return;
-
-            gameState.animating = true;
-            closeMenu();
-
-            const attacks = {
-                1: { name: 'Corte Rápido', dmg: 25, acc: 85 },
-                2: { name: 'Golpe Trovão', dmg: 35, acc: 70 },
-                3: { name: 'Tornado Cortante', dmg: 45, acc: 60 },
-                4: { name: 'Impacto Sísmico', dmg: 55, acc: 50 }
-            };
-
-            const attack = attacks[type];
-            addMessage(`🗡️ ${attack.name}!`);
-
-            const warrior = document.getElementById('warrior');
-            warrior.classList.add('attack');
-
-            setTimeout(() => {
-                const hit = Math.random() * 100 <= attack.acc;
-                if (hit) {
-                    const damage = Math.floor(Math.random() * attack.dmg * 0.2 + attack.dmg * 0.8);
-                    gameState.enemyHP = Math.max(0, gameState.enemyHP - damage);
-                    addMessage(`💥 Acertou! ${damage} de dano!`);
-                    
-                    const demon = document.getElementById('demon');
-                    demon.classList.add('hurt');
-                    setTimeout(() => demon.classList.remove('hurt'), 400);
-                } else {
-                    addMessage('💨 Errou!');
-                }
-
-                warrior.classList.remove('attack');
-                updateUI();
-                setTimeout(checkTurnEnd, 1000);
-            }, 600);
-        }
-
-        // Magia
-        function executeMagic(type) {
-            if (!gameState.playerTurn || gameState.animating) return;
-
-            const spells = {
-                1: { name: 'Fire III', dmg: 40, acc: 80, cost: 15 },
-                2: { name: 'Blizzard III', dmg: 38, acc: 85, cost: 18 },
-                3: { name: 'Thunder III', dmg: 42, acc: 75, cost: 20 },
-                4: { name: 'Holy', dmg: 50, acc: 90, cost: 25 },
-                5: { name: 'Meteor', dmg: 70, acc: 60, cost: 35 }
-            };
-
-            const spell = spells[type];
-
-            if (gameState.playerMP < spell.cost) {
-                addMessage('❌ MP insuficiente!');
-                return;
-            }
-
-            gameState.animating = true;
-            closeMenu();
-            gameState.playerMP -= spell.cost;
-            updateUI();
-
-            addMessage(`🔮 ${spell.name}!`);
-
-            setTimeout(() => {
-                const hit = Math.random() * 100 <= spell.acc;
-                if (hit) {
-                    const damage = Math.floor(Math.random() * spell.dmg * 0.2 + spell.dmg * 0.8);
-                    gameState.enemyHP = Math.max(0, gameState.enemyHP - damage);
-                    addMessage(`✨ Acertou! ${damage} de dano!`);
-                    
-                    const demon = document.getElementById('demon');
-                    demon.classList.add('hurt');
-                    setTimeout(() => demon.classList.remove('hurt'), 600);
-                } else {
-                    addMessage('💨 A magia falhou!');
-                }
-
-                updateUI();
-                setTimeout(checkTurnEnd, 1500);
-            }, 800);
-        }
-
-        // Usar poção de HP
-        function useHPPotion() {
-            if (gameState.potionsHP <= 0 || !gameState.playerTurn) return;
-
-            gameState.potionsHP--;
-            const heal = Math.floor(Math.random() * 20 + 40);
-            gameState.playerHP = Math.min(gameState.playerHP + heal, gameState.maxPlayerHP);
+        // Update buffs display
+        function updateBuffsDisplay(target) {
+            const buffs = target === 'player' ? gameState.playerBuffs : gameState.enemyBuffs;
+            const container = document.getElementById(target === 'player' ? 'playerBuffs' : 'enemyBuffs');
             
-            addMessage(`❤️ Poção usada! Recuperou ${heal} HP!`);
-            closeMenu();
-            updateUI();
-            
-            setTimeout(checkTurnEnd, 800);
-        }
-
-        // Usar poção de MP
-        function useMPPotion() {
-            if (gameState.potionsMP <= 0 || !gameState.playerTurn) return;
-
-            gameState.potionsMP--;
-            const recover = Math.floor(Math.random() * 20 + 30);
-            gameState.playerMP = Math.min(gameState.playerMP + recover, gameState.maxPlayerMP);
-            
-            addMessage(`💙 Éter usado! Recuperou ${recover} MP!`);
-            closeMenu();
-            updateUI();
-            
-            setTimeout(checkTurnEnd, 800);
-        }
-
-        // Usar Elixir
-        function useElixir() {
-            if (gameState.elixirs <= 0 || !gameState.playerTurn) return;
-
-            gameState.elixirs--;
-            gameState.playerHP = gameState.maxPlayerHP;
-            gameState.playerMP = gameState.maxPlayerMP;
-            
-            addMessage('✨ Elixir usado! HP e MP restaurados!');
-            closeMenu();
-            updateUI();
-            
-            setTimeout(checkTurnEnd, 1000);
-        }
-
-        // Defender
-        function defend() {
-            if (!gameState.playerTurn || gameState.animating) return;
-
-            closeMenu();
-            addMessage('🛡️ Você se prepara para defender!');
-            gameState.playerMP = Math.min(gameState.playerMP + 10, gameState.maxPlayerMP);
-            updateUI();
-            
-            setTimeout(checkTurnEnd, 800);
-        }
-
-        // Verificar fim do turno
-        function checkTurnEnd() {
-            gameState.animating = false;
-
-            if (gameState.enemyHP <= 0) {
-                endGame(true);
+            if (Object.keys(buffs).length === 0) {
+                container.innerHTML = '<span style="color: #94a3b8; font-size: 0.85rem;">Nenhum</span>';
             } else {
-                setTimeout(enemyTurn, 500);
+                container.innerHTML = '';
+                Object.values(buffs).forEach(buff => {
+                    const buffEl = document.createElement('div');
+                    buffEl.className = 'buff-icon';
+                    buffEl.textContent = `${buff.name} (${buff.duration})`;
+                    container.appendChild(buffEl);
+                });
             }
         }
 
-        // Turno do inimigo
-        function enemyTurn() {
-            gameState.playerTurn = false;
-            gameState.animating = true;
-            updateUI();
+        // Add message
+        function addMessage(text, className = 'info-msg') {
+            const log = document.getElementById('messageLog');
+            const msg = document.createElement('div');
+            msg.className = `message ${className}`;
+            msg.textContent = text;
+            log.appendChild(msg);
+            log.scrollTop = log.scrollHeight;
 
-            const action = Math.random() * 100;
-
-            setTimeout(() => {
-                const demon = document.getElementById('demon');
-                demon.classList.add('enemy-attack');
-
-                if (action <= 60) {
-                    // Ataque físico
-                    const damage = Math.floor(Math.random() * 15 + 25);
-                    gameState.playerHP = Math.max(0, gameState.playerHP - damage);
-                    addMessage(`👹 Garra Sombria! ${damage} de dano!`);
-                    
-                    const warrior = document.getElementById('warrior');
-                    warrior.classList.add('hurt');
-                    setTimeout(() => warrior.classList.remove('hurt'), 600);
-
-                } else if (action <= 85 && gameState.enemyMP >= 15) {
-                    // Magia
-                    const damage = Math.floor(Math.random() * 15 + 30);
-                    gameState.enemyMP -= 15;
-                    gameState.playerHP = Math.max(0, gameState.playerHP - damage);
-                    addMessage(`👹 Bola de Fogo Negra! ${damage} de dano mágico!`);
-                    
-                    const warrior = document.getElementById('warrior');
-                    warrior.classList.add('hurt');
-                    setTimeout(() => warrior.classList.remove('hurt'), 600);
-
-                } else {
-                    // Curar
-                    const heal = Math.floor(Math.random() * 15 + 25);
-                    gameState.enemyHP = Math.min(gameState.enemyHP + heal, gameState.maxEnemyHP);
-                    addMessage(`🩸 Inimigo recuperou ${heal} HP!`);
-                }
-
-                demon.classList.remove('enemy-attack');
-                updateUI();
-                setTimeout(endEnemyTurn, 1200);
-            }, 800);
-        }
-
-        // Fim turno inimigo
-        function endEnemyTurn() {
-            if (gameState.playerHP <= 0) {
-                endGame(false);
-            } else {
-                gameState.playerTurn = true;
-                gameState.animating = false;
-                updateUI();
+            // Keep only last 10 messages
+            while (log.children.length > 10) {
+                log.removeChild(log.firstChild);
             }
         }
 
-        // Fim de jogo
+        // End game
         function endGame(victory) {
             gameState.gameOver = true;
             gameState.animating = true;
 
-            const gameOverDiv = document.getElementById('gameOver');
-            const gameOverTitle = document.getElementById('gameOverTitle');
-            const actionMenu = document.getElementById('actionMenu');
+            const spellMenu = document.getElementById('spellMenu');
+            const gameOverScreen = document.getElementById('gameOverScreen');
+            
+            spellMenu.style.display = 'none';
+            gameOverScreen.style.display = 'block';
 
             if (victory) {
-                gameOverTitle.textContent = '🎉 VITÓRIA! 🎉';
-                gameOverTitle.className = 'game-over-title victory';
-                addMessage('🎉 VITÓRIA! O Demônio foi derrotado!');
-                addMessage('✨ Você ganhou 500 EXP e 200 Gil!');
-                document.getElementById('demon').classList.add('dead');
+                gameOverScreen.className = 'game-over-screen victory-screen';
+                gameOverScreen.innerHTML = `
+                    <div class="game-over-title victory-title">🎉 VITÓRIA! 🎉</div>
+                    <div class="game-over-stats">
+                        <div>⚔️ Você derrotou Kratos, o Deus da Guerra!</div>
+                        <div>📊 Turnos: ${gameState.turnCount}</div>
+                        <div>❤️ HP Restante: ${gameState.playerHP}/${gameState.maxPlayerHP}</div>
+                        <div>✨ MP Restante: ${gameState.playerMP}/${gameState.maxPlayerMP}</div>
+                        <div style="margin-top: 20px; color: #fbbf24;">
+                            🎁 Recompensas:<br>
+                            +2000 EXP • +1000 Gil • ⚔️ Lâmina Divina
+                        </div>
+                    </div>
+                    <button class="restart-btn" onclick="restart()">🔄 NOVO DUELO</button>
+                `;
             } else {
-                gameOverTitle.textContent = '💀 DERROTA 💀';
-                gameOverTitle.className = 'game-over-title defeat';
-                addMessage('💀 DERROTA! Você foi derrotado...');
-                addMessage('🔄 Tente novamente!');
-                document.getElementById('warrior').classList.add('dead');
+                gameOverScreen.className = 'game-over-screen defeat-screen';
+                gameOverScreen.innerHTML = `
+                    <div class="game-over-title defeat-title">💀 DERROTA 💀</div>
+                    <div class="game-over-stats">
+                        <div>⚔️ Kratos, o Deus da Guerra, triunfou...</div>
+                        <div>📊 Turnos Sobrevividos: ${gameState.turnCount}</div>
+                        <div>💔 HP do Inimigo: ${gameState.enemyHP}/${gameState.maxEnemyHP}</div>
+                        <div style="margin-top: 20px; color: #94a3b8;">
+                            Continue praticando suas magias!<br>
+                            Até os deuses podem ser derrotados...
+                        </div>
+                    </div>
+                    <button class="restart-btn" onclick="restart()">🔄 TENTAR NOVAMENTE</button>
+                `;
             }
-
-            actionMenu.style.display = 'none';
-            gameOverDiv.style.display = 'block';
         }
 
-        // Reiniciar jogo
+        // Restart game
         function restart() {
-            gameState = {
-                playerHP: 150,
-                playerMP: 100,
-                enemyHP: 180,
-                enemyMP: 80,
-                maxPlayerHP: 150,
-                maxPlayerMP: 100,
-                maxEnemyHP: 180,
-                potionsHP: 3,
-                potionsMP: 2,
-                elixirs: 1,
-                playerTurn: true,
-                animating: false,
-                gameOver: false
-            };
+            gameState.playerHP = 200;
+            gameState.playerMP = 150;
+            gameState.enemyHP = 250;
+            gameState.enemyMP = 120;
+            gameState.playerBuffs = {};
+            gameState.enemyBuffs = {};
+            gameState.playerTurn = true;
+            gameState.animating = false;
+            gameState.gameOver = false;
+            gameState.turnCount = 1;
+            gameState.kratosRage = 0;
 
-            document.getElementById('warrior').className = 'character';
-            document.getElementById('demon').className = 'character';
-            document.getElementById('gameOver').style.display = 'none';
-            document.getElementById('actionMenu').style.display = 'block';
-            document.getElementById('submenu').style.display = 'none';
-            document.getElementById('mainActions').style.display = 'grid';
+            document.getElementById('playerMage').className = 'mage player-mage';
+            document.getElementById('enemyMage').className = 'mage enemy-mage';
+            document.getElementById('gameOverScreen').style.display = 'none';
+            document.getElementById('spellMenu').style.display = 'block';
 
-            const messagesDiv = document.getElementById('messages');
-            messagesDiv.innerHTML = `
-                <div class="message">⚔️ Uma nova batalha épica começou!</div>
-                <div class="message">👹 O Demônio das Sombras emerge das trevas!</div>
-                <div class="message">🗡️ Escolha sua ação sabiamente...</div>
+            document.getElementById('messageLog').innerHTML = `
+                <div class="message info-msg">⚡ O duelo épico começou!</div>
+                <div class="message info-msg">⚔️ Kratos, o Deus da Guerra, ergue suas Lâminas do Caos!</div>
+                <div class="message info-msg">🔮 Escolha sua magia sabiamente!</div>
             `;
 
             updateUI();
         }
 
-        // Inicializar
-        createStars();
-        updateUI();
+        // Start game
+        init();
     </script>
 </body>
 </html>
