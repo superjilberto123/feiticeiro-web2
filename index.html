@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚔️ Final Fantasy Battle Arena ⚔️</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(to bottom, #1e3a8a, #581c87, #000000);
+            min-height: 100vh;
+            color: white;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2.5rem;
+            color: #fbbf24;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            letter-spacing: 2px;
+        }
+
+        /* Campo de Batalha */
+        .battlefield {
+            background: linear-gradient(to bottom, #1e40af, #7e22ce);
+            border: 4px solid #3b82f6;
+            border-radius: 10px;
+            padding: 40px;
+            margin-bottom: 30px;
+            min-height: 300px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stars {
+            position: absolute;
+            width: 100%;
+            height: 60%;
+            top: 0;
+            left: 0;
+        }
+
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+        }
+
+        .combatants {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            z-index: 10;
+        }
+
+        .character {
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .character.attack {
+            transform: translateX(50px);
+        }
+
+        .character.enemy-attack {
+            transform: translateX(-50px);
+        }
+
+        .character.hurt {
+            animation: shake 0.3s;
+        }
+
+        .character.dead {
+            opacity: 0.3;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .sprite {
+            font-size: 6rem;
+            margin-bottom: 10px;
+        }
+
+        .char-name {
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .warrior-name { color: #fbbf24; }
+        .demon-name { color: #f87171; }
+
+        .vs {
+            font-size: 4rem;
+            font-weight: bold;
+            color: #ef4444;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Status */
+        .status-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .status-box {
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid;
+        }
+
+        .player-status {
+            background: #1e3a8a;
+            border-color: #fbbf24;
+        }
+
+        .enemy-status {
+            background: #581c87;
+            border-color: #ef4444;
+        }
+
+        .status-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .stat-row {
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 24px;
+            background: #1f2937;
+            border: 2px solid #4b5563;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            transition: width 0.5s ease;
+        }
+
+        .hp-bar { background: #dc2626; }
+        .mp-bar { background: #2563eb; }
+        .enemy-hp-bar { background: #9333ea; }
+
+        /* Mensagens */
+        .messages {
+            background: #172554;
+            border: 2px solid #3b82f6;
+            border-radius: 10px;
+            padding: 20px;
+            min-height: 120px;
+            margin-bottom: 30px;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        .message {
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+
+        /* Menu de Ações */
+        .action-menu {
+            background: #1e3a8a;
+            border: 2px solid #3b82f6;
+            border-radius: 10px;
+            padding: 30px;
+        }
+
+        .main-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .submenu {
+            margin-top: 20px;
+        }
+
+        .submenu-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+        }
+
+        button {
+            padding: 15px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Courier New', monospace;
+            color: white;
+        }
+
+        button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-attack { background: #dc2626; }
+        .btn-attack:hover:not(:disabled) { background: #b91c1c; }
+
+        .btn-magic { background: #7c3aed; }
+        .btn-magic:hover:not(:disabled) { background: #6d28d9; }
+
+        .btn-item { background: #059669; }
+        .btn-item:hover:not(:disabled) { background: #047857; }
+
+        .btn-defend { background: #2563eb; }
+        .btn-defend:hover:not(:disabled) { background: #1d4ed8; }
+
+        .btn-back { background: #4b5563; }
+        .btn-back:hover { background: #374151; }
+
+        .btn-restart {
+            background: #d97706;
+            padding: 20px 40px;
+            font-size: 1.3rem;
+        }
+        .btn-restart:hover { background: #b45309; }
+
+        /* Game Over */
+        .game-over {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .game-over-title {
+            font-size: 4rem;
+            font-weight: bold;
+            margin-bottom: 30px;
+        }
+
+        .victory { color: #fbbf24; }
+        .defeat { color: #ef4444; }
+
+        /* Responsivo */
+        @media (max-width: 768px) {
+            h1 { font-size: 1.8rem; }
+            .sprite { font-size: 4rem; }
+            .vs { font-size: 3rem; }
+            .status-container { grid-template-columns: 1fr; }
+            .main-actions { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⚔️ FINAL FANTASY BATTLE ARENA ⚔️</h1>
+
+        <!-- Campo de Batalha -->
+        <div class="battlefield">
+            <div class="stars" id="stars"></div>
+            <div class="combatants">
+                <div class="character" id="warrior">
+                    <div class="sprite">🗡️</div>
+                    <div class="char-name warrior-name">GUERREIRO</div>
+                </div>
+                <div class="vs">VS</div>
+                <div class="character" id="demon">
+                    <div class="sprite">👹</div>
+                    <div class="char-name demon-name">DEMÔNIO</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status -->
+        <div class="status-container">
+            <div class="status-box player-status">
+                <div class="status-title">🗡️ GUERREIRO MÍSTICO</div>
+                <div class="stat-row">
+                    <div class="stat-label">
+                        <span style="color: #f87171;">HP</span>
+                        <span id="playerHP">150/150</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill hp-bar" id="playerHPBar" style="width: 100%"></div>
+                    </div>
+                </div>
+                <div class="stat-row">
+                    <div class="stat-label">
+                        <span style="color: #60a5fa;">MP</span>
+                        <span id="playerMP">100/100</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill mp-bar" id="playerMPBar" style="width: 100%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="status-box enemy-status">
+                <div class="status-title">👹 DEMÔNIO DAS SOMBRAS</div>
+                <div class="stat-row">
+                    <div class="stat-label">
+                        <span style="color: #f87171;">HP</span>
+                        <span id="enemyHP">180/180</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill enemy-hp-bar" id="enemyHPBar" style="width: 100%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mensagens -->
+        <div class="messages" id="messages">
+            <div class="message">⚔️ Uma nova batalha épica começou!</div>
+            <div class="message">👹 O Demônio das Sombras emerge das trevas!</div>
+            <div class="message">🗡️ Escolha sua ação sabiamente...</div>
+        </div>
+
+        <!-- Menu de Ações -->
+        <div class="action-menu" id="actionMenu">
+            <div class="main-actions" id="mainActions">
+                <button class="btn-attack" onclick="openMenu('attack')">⚔️ ATACAR</button>
+                <button class="btn-magic" onclick="openMenu('magic')">🔮 MAGIA</button>
+                <button class="btn-item" onclick="openMenu('items')">💊 ITENS</button>
+                <button class="btn-defend" onclick="defend()">🛡️ DEFENDER</button>
+            </div>
+
+            <div class="submenu" id="submenu" style="display: none;">
+                <button class="btn-back" onclick="closeMenu()">← Voltar</button>
+                <div class="submenu-actions" id="submenuActions"></div>
+            </div>
+        </div>
+
+        <!-- Game Over -->
+        <div class="game-over" id="gameOver" style="display: none;">
+            <div class="game-over-title" id="gameOverTitle"></div>
+            <button class="btn-restart" onclick="restart()">🔄 NOVA BATALHA</button>
+        </div>
+    </div>
+
+    <script>
+        // Estado do jogo
+        let gameState = {
+            playerHP: 150,
+            playerMP: 100,
+            enemyHP: 180,
+            enemyMP: 80,
+            maxPlayerHP: 150,
+            maxPlayerMP: 100,
+            maxEnemyHP: 180,
+            potionsHP: 3,
+            potionsMP: 2,
+            elixirs: 1,
+            playerTurn: true,
+            animating: false,
+            gameOver: false
+        };
+
+        // Criar estrelas de fundo
+        function createStars() {
+            const starsContainer = document.getElementById('stars');
+            for (let i = 0; i < 30; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 60 + '%';
+                star.style.opacity = Math.random() * 0.8 + 0.2;
+                starsContainer.appendChild(star);
+            }
+        }
+
+        // Adicionar mensagem
+        function addMessage(msg) {
+            const messagesDiv = document.getElementById('messages');
+            const messageEl = document.createElement('div');
+            messageEl.className = 'message';
+            messageEl.textContent = msg;
+            messagesDiv.appendChild(messageEl);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+            // Manter apenas últimas 6 mensagens
+            while (messagesDiv.children.length > 6) {
+                messagesDiv.removeChild(messagesDiv.firstChild);
+            }
+        }
+
+        // Atualizar interface
+        function updateUI() {
+            document.getElementById('playerHP').textContent = 
+                `${Math.max(0, gameState.playerHP)}/${gameState.maxPlayerHP}`;
+            document.getElementById('playerMP').textContent = 
+                `${Math.max(0, gameState.playerMP)}/${gameState.maxPlayerMP}`;
+            document.getElementById('enemyHP').textContent = 
+                `${Math.max(0, gameState.enemyHP)}/${gameState.maxEnemyHP}`;
+
+            document.getElementById('playerHPBar').style.width = 
+                `${(gameState.playerHP / gameState.maxPlayerHP) * 100}%`;
+            document.getElementById('playerMPBar').style.width = 
+                `${(gameState.playerMP / gameState.maxPlayerMP) * 100}%`;
+            document.getElementById('enemyHPBar').style.width = 
+                `${(gameState.enemyHP / gameState.maxEnemyHP) * 100}%`;
+
+            // Desabilitar botões se não for turno do jogador
+            const buttons = document.querySelectorAll('.main-actions button');
+            buttons.forEach(btn => {
+                btn.disabled = !gameState.playerTurn || gameState.animating;
+            });
+        }
+
+        // Abrir submenu
+        function openMenu(type) {
+            if (!gameState.playerTurn || gameState.animating) return;
+
+            const submenu = document.getElementById('submenu');
+            const submenuActions = document.getElementById('submenuActions');
+            const mainActions = document.getElementById('mainActions');
+
+            submenuActions.innerHTML = '';
+            submenu.style.display = 'block';
+            mainActions.style.display = 'none';
+
+            if (type === 'attack') {
+                const attacks = [
+                    { name: '🗡️ Corte Rápido', id: 1 },
+                    { name: '⚡ Golpe Trovão', id: 2 },
+                    { name: '🌪️ Tornado Cortante', id: 3 },
+                    { name: '💥 Impacto Sísmico', id: 4 }
+                ];
+                attacks.forEach(atk => {
+                    const btn = document.createElement('button');
+                    btn.className = 'btn-attack';
+                    btn.textContent = atk.name;
+                    btn.onclick = () => executePhysicalAttack(atk.id);
+                    submenuActions.appendChild(btn);
+                });
+            } else if (type === 'magic') {
+                const spells = [
+                    { name: '🔥 Fire III (15 MP)', id: 1, cost: 15 },
+                    { name: '❄️ Blizzard III (18 MP)', id: 2, cost: 18 },
+                    { name: '⚡ Thunder III (20 MP)', id: 3, cost: 20 },
+                    { name: '🌟 Holy (25 MP)', id: 4, cost: 25 },
+                    { name: '🌪️ Meteor (35 MP)', id: 5, cost: 35 }
+                ];
+                spells.forEach(spell => {
+                    const btn = document.createElement('button');
+                    btn.className = 'btn-magic';
+                    btn.textContent = spell.name;
+                    btn.disabled = gameState.playerMP < spell.cost;
+                    btn.onclick = () => executeMagic(spell.id);
+                    submenuActions.appendChild(btn);
+                });
+            } else if (type === 'items') {
+                const items = [
+                    { name: `❤️ Poção Vida x${gameState.potionsHP}`, action: useHPPotion, count: gameState.potionsHP },
+                    { name: `💙 Éter x${gameState.potionsMP}`, action: useMPPotion, count: gameState.potionsMP },
+                    { name: `✨ Elixir x${gameState.elixirs}`, action: useElixir, count: gameState.elixirs }
+                ];
+                items.forEach(item => {
+                    const btn = document.createElement('button');
+                    btn.className = 'btn-item';
+                    btn.textContent = item.name;
+                    btn.disabled = item.count <= 0;
+                    btn.onclick = item.action;
+                    submenuActions.appendChild(btn);
+                });
+            }
+        }
+
+        // Fechar submenu
+        function closeMenu() {
+            document.getElementById('submenu').style.display = 'none';
+            document.getElementById('mainActions').style.display = 'grid';
+        }
+
+        // Ataque físico
+        function executePhysicalAttack(type) {
+            if (!gameState.playerTurn || gameState.animating) return;
+
+            gameState.animating = true;
+            closeMenu();
+
+            const attacks = {
+                1: { name: 'Corte Rápido', dmg: 25, acc: 85 },
+                2: { name: 'Golpe Trovão', dmg: 35, acc: 70 },
+                3: { name: 'Tornado Cortante', dmg: 45, acc: 60 },
+                4: { name: 'Impacto Sísmico', dmg: 55, acc: 50 }
+            };
+
+            const attack = attacks[type];
+            addMessage(`🗡️ ${attack.name}!`);
+
+            const warrior = document.getElementById('warrior');
+            warrior.classList.add('attack');
+
+            setTimeout(() => {
+                const hit = Math.random() * 100 <= attack.acc;
+                if (hit) {
+                    const damage = Math.floor(Math.random() * attack.dmg * 0.2 + attack.dmg * 0.8);
+                    gameState.enemyHP = Math.max(0, gameState.enemyHP - damage);
+                    addMessage(`💥 Acertou! ${damage} de dano!`);
+                    
+                    const demon = document.getElementById('demon');
+                    demon.classList.add('hurt');
+                    setTimeout(() => demon.classList.remove('hurt'), 400);
+                } else {
+                    addMessage('💨 Errou!');
+                }
+
+                warrior.classList.remove('attack');
+                updateUI();
+                setTimeout(checkTurnEnd, 1000);
+            }, 600);
+        }
+
+        // Magia
+        function executeMagic(type) {
+            if (!gameState.playerTurn || gameState.animating) return;
+
+            const spells = {
+                1: { name: 'Fire III', dmg: 40, acc: 80, cost: 15 },
+                2: { name: 'Blizzard III', dmg: 38, acc: 85, cost: 18 },
+                3: { name: 'Thunder III', dmg: 42, acc: 75, cost: 20 },
+                4: { name: 'Holy', dmg: 50, acc: 90, cost: 25 },
+                5: { name: 'Meteor', dmg: 70, acc: 60, cost: 35 }
+            };
+
+            const spell = spells[type];
+
+            if (gameState.playerMP < spell.cost) {
+                addMessage('❌ MP insuficiente!');
+                return;
+            }
+
+            gameState.animating = true;
+            closeMenu();
+            gameState.playerMP -= spell.cost;
+            updateUI();
+
+            addMessage(`🔮 ${spell.name}!`);
+
+            setTimeout(() => {
+                const hit = Math.random() * 100 <= spell.acc;
+                if (hit) {
+                    const damage = Math.floor(Math.random() * spell.dmg * 0.2 + spell.dmg * 0.8);
+                    gameState.enemyHP = Math.max(0, gameState.enemyHP - damage);
+                    addMessage(`✨ Acertou! ${damage} de dano!`);
+                    
+                    const demon = document.getElementById('demon');
+                    demon.classList.add('hurt');
+                    setTimeout(() => demon.classList.remove('hurt'), 600);
+                } else {
+                    addMessage('💨 A magia falhou!');
+                }
+
+                updateUI();
+                setTimeout(checkTurnEnd, 1500);
+            }, 800);
+        }
+
+        // Usar poção de HP
+        function useHPPotion() {
+            if (gameState.potionsHP <= 0 || !gameState.playerTurn) return;
+
+            gameState.potionsHP--;
+            const heal = Math.floor(Math.random() * 20 + 40);
+            gameState.playerHP = Math.min(gameState.playerHP + heal, gameState.maxPlayerHP);
+            
+            addMessage(`❤️ Poção usada! Recuperou ${heal} HP!`);
+            closeMenu();
+            updateUI();
+            
+            setTimeout(checkTurnEnd, 800);
+        }
+
+        // Usar poção de MP
+        function useMPPotion() {
+            if (gameState.potionsMP <= 0 || !gameState.playerTurn) return;
+
+            gameState.potionsMP--;
+            const recover = Math.floor(Math.random() * 20 + 30);
+            gameState.playerMP = Math.min(gameState.playerMP + recover, gameState.maxPlayerMP);
+            
+            addMessage(`💙 Éter usado! Recuperou ${recover} MP!`);
+            closeMenu();
+            updateUI();
+            
+            setTimeout(checkTurnEnd, 800);
+        }
+
+        // Usar Elixir
+        function useElixir() {
+            if (gameState.elixirs <= 0 || !gameState.playerTurn) return;
+
+            gameState.elixirs--;
+            gameState.playerHP = gameState.maxPlayerHP;
+            gameState.playerMP = gameState.maxPlayerMP;
+            
+            addMessage('✨ Elixir usado! HP e MP restaurados!');
+            closeMenu();
+            updateUI();
+            
+            setTimeout(checkTurnEnd, 1000);
+        }
+
+        // Defender
+        function defend() {
+            if (!gameState.playerTurn || gameState.animating) return;
+
+            closeMenu();
+            addMessage('🛡️ Você se prepara para defender!');
+            gameState.playerMP = Math.min(gameState.playerMP + 10, gameState.maxPlayerMP);
+            updateUI();
+            
+            setTimeout(checkTurnEnd, 800);
+        }
+
+        // Verificar fim do turno
+        function checkTurnEnd() {
+            gameState.animating = false;
+
+            if (gameState.enemyHP <= 0) {
+                endGame(true);
+            } else {
+                setTimeout(enemyTurn, 500);
+            }
+        }
+
+        // Turno do inimigo
+        function enemyTurn() {
+            gameState.playerTurn = false;
+            gameState.animating = true;
+            updateUI();
+
+            const action = Math.random() * 100;
+
+            setTimeout(() => {
+                const demon = document.getElementById('demon');
+                demon.classList.add('enemy-attack');
+
+                if (action <= 60) {
+                    // Ataque físico
+                    const damage = Math.floor(Math.random() * 15 + 25);
+                    gameState.playerHP = Math.max(0, gameState.playerHP - damage);
+                    addMessage(`👹 Garra Sombria! ${damage} de dano!`);
+                    
+                    const warrior = document.getElementById('warrior');
+                    warrior.classList.add('hurt');
+                    setTimeout(() => warrior.classList.remove('hurt'), 600);
+
+                } else if (action <= 85 && gameState.enemyMP >= 15) {
+                    // Magia
+                    const damage = Math.floor(Math.random() * 15 + 30);
+                    gameState.enemyMP -= 15;
+                    gameState.playerHP = Math.max(0, gameState.playerHP - damage);
+                    addMessage(`👹 Bola de Fogo Negra! ${damage} de dano mágico!`);
+                    
+                    const warrior = document.getElementById('warrior');
+                    warrior.classList.add('hurt');
+                    setTimeout(() => warrior.classList.remove('hurt'), 600);
+
+                } else {
+                    // Curar
+                    const heal = Math.floor(Math.random() * 15 + 25);
+                    gameState.enemyHP = Math.min(gameState.enemyHP + heal, gameState.maxEnemyHP);
+                    addMessage(`🩸 Inimigo recuperou ${heal} HP!`);
+                }
+
+                demon.classList.remove('enemy-attack');
+                updateUI();
+                setTimeout(endEnemyTurn, 1200);
+            }, 800);
+        }
+
+        // Fim turno inimigo
+        function endEnemyTurn() {
+            if (gameState.playerHP <= 0) {
+                endGame(false);
+            } else {
+                gameState.playerTurn = true;
+                gameState.animating = false;
+                updateUI();
+            }
+        }
+
+        // Fim de jogo
+        function endGame(victory) {
+            gameState.gameOver = true;
+            gameState.animating = true;
+
+            const gameOverDiv = document.getElementById('gameOver');
+            const gameOverTitle = document.getElementById('gameOverTitle');
+            const actionMenu = document.getElementById('actionMenu');
+
+            if (victory) {
+                gameOverTitle.textContent = '🎉 VITÓRIA! 🎉';
+                gameOverTitle.className = 'game-over-title victory';
+                addMessage('🎉 VITÓRIA! O Demônio foi derrotado!');
+                addMessage('✨ Você ganhou 500 EXP e 200 Gil!');
+                document.getElementById('demon').classList.add('dead');
+            } else {
+                gameOverTitle.textContent = '💀 DERROTA 💀';
+                gameOverTitle.className = 'game-over-title defeat';
+                addMessage('💀 DERROTA! Você foi derrotado...');
+                addMessage('🔄 Tente novamente!');
+                document.getElementById('warrior').classList.add('dead');
+            }
+
+            actionMenu.style.display = 'none';
+            gameOverDiv.style.display = 'block';
+        }
+
+        // Reiniciar jogo
+        function restart() {
+            gameState = {
+                playerHP: 150,
+                playerMP: 100,
+                enemyHP: 180,
+                enemyMP: 80,
+                maxPlayerHP: 150,
+                maxPlayerMP: 100,
+                maxEnemyHP: 180,
+                potionsHP: 3,
+                potionsMP: 2,
+                elixirs: 1,
+                playerTurn: true,
+                animating: false,
+                gameOver: false
+            };
+
+            document.getElementById('warrior').className = 'character';
+            document.getElementById('demon').className = 'character';
+            document.getElementById('gameOver').style.display = 'none';
+            document.getElementById('actionMenu').style.display = 'block';
+            document.getElementById('submenu').style.display = 'none';
+            document.getElementById('mainActions').style.display = 'grid';
+
+            const messagesDiv = document.getElementById('messages');
+            messagesDiv.innerHTML = `
+                <div class="message">⚔️ Uma nova batalha épica começou!</div>
+                <div class="message">👹 O Demônio das Sombras emerge das trevas!</div>
+                <div class="message">🗡️ Escolha sua ação sabiamente...</div>
+            `;
+
+            updateUI();
+        }
+
+        // Inicializar
+        createStars();
+        updateUI();
+    </script>
+</body>
+</html>
